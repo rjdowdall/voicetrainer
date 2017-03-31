@@ -64,10 +64,11 @@ class D3Plot {
             .x(function(d) { return self.x(d[0]); })
             .y(function(d) { return self.y(d[1]); });
 */
-        this.y.domain([1, 100001]);
-        this.x.domain([1, frequencies.length]);
+        this.y.domain([3, 100001]);
+        //this.x.domain([0.00001, _.max(self.frequencies)]);
+        //this.x.domain([0.00001, _.max(self.frequencies)]);
        
-        //this.x.domain(d3.extent(frequencies, function(d) { return d[0]; }));
+        this.x.domain(d3.extent(frequencies, function(d) { return d; }));
         //this.y.domain(0, 200);
 
 

@@ -87,8 +87,9 @@ function cancelAnalyserUpdates() {
 
 
 var freqs =  new Array();
+var res = audioContext.sampleRate / FFT_SIZE;
 for (i = 0; i < FFT_SIZE / 2; i++) {
-    freqs[i] = i+1;
+    freqs[i] = (i+1) * res;
 }
 var plot = new D3Plot(freqs)
 //plot.draw()
