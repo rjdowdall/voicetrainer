@@ -59,11 +59,32 @@ function cancelAnalyserUpdates() {
   rafID = null;
 }
 
+var bufferSize = 4096*2;
+var hanningFilter = (function() {
+    var lastOut = 0.0;
+    var node = audioContext.createScriptProcessor(bufferSize, 1, 1);
+    node.onaudioprocess = function(e) {
+        var input = e.inputBuffer.getChannelData(0);
+        var output = e.outputBuffer.getChannelData(0);
+        for (var i = 0; i < bufferSize; i++) {
+            //output[i] = (input[i] + lastOut) / 2.0;
+            //lastOut = output[i];
+            output[i] = input[i];
+            //output[i] = ((1 - Math.cos(i*2*Math.PI/bufferSize-1))/2.0) * input[i];
+        }
+    }
+    return node;
+})();
 
-var freqs =  new Array();
-var res = audioContext.sampleRate / FFT_SIZE;
-for (i = 0; i < FFT_SIZE / 2; i++) {
+
+var getFreqs = function(){
+  var freqs =  new Array();
+  var res = audioContext.sampleRate / FFT_SIZE;
+  for (i = 0; i < FFT_SIZE / 2; i++) {
     freqs[i] = (i+1) * res;
+  }
+  return freqs;
+}
 
 function gotStream(stream) {
   inputPoint = audioContext.createGain();
@@ -72,22 +93,20 @@ function gotStream(stream) {
   realAudioInput = audioContext.createMediaStreamSource(stream);
   audioInput = realAudioInput;
   audioInput.connect(inputPoint);
+  inputPoint.connect(hanningFilter);
 
   var analyserNode = audioContext.createAnalyser();
-  analyserNode.fftSize = 2048;
-  inputPoint.connect(analyserNode);
+  analyserNode.fftSize = FFT_SIZE;
 
+  hanningFilter.connect(analyserNode);
   audioRecorder = new Recorder(inputPoint);
 
   var zeroGain = audioContext.createGain();
   zeroGain.gain.value = 0.0;
   inputPoint.connect(zeroGain);
   zeroGain.connect(audioContext.destination);
-
-  var freqs =  new Array();
-  for (i = 0; i < FFT_SIZE / 2; i++) {
-      freqs[i] = i+1;
-  }
+  
+  var freqs = getFreqs();
   var plot = new D3Plot(freqs, '.microphone-analyser');
   updateAnalysers(plot, analyserNode);
 
@@ -117,7 +136,7 @@ function onNewFile(e) {
       source.buffer = audioBuffer;
 
       var analyserNode = audioContext.createAnalyser();
-      analyserNode.fftSize = 2048;
+      analyserNode.fftSize = FFT_SIZE;
       source.connect(analyserNode);
 
       var zeroGain = audioContext.createGain();
@@ -125,10 +144,7 @@ function onNewFile(e) {
       source.connect(zeroGain);
       // source.connect(audioContext.destination); // play music
 
-      var freqs =  new Array();
-      for (i = 0; i < FFT_SIZE / 2; i++) {
-          freqs[i] = i+1;
-      }
+      var freqs = getFreqs();
       var plot = new D3Plot(freqs, '.file-analyser');
       updateAnalysers(plot, analyserNode);
       source.start(0);

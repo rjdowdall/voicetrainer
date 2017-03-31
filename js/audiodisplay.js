@@ -33,7 +33,7 @@ class D3Plot {
         this.g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         this.x = d3.scaleLog().base(10)
-            .rangeRound([0, this.width]);
+            .rangeRound([0, this.width*.9]);
 
         this.y = d3.scaleLog().base(10)
             .rangeRound([this.height, 0]);
@@ -65,10 +65,10 @@ class D3Plot {
             .x(function(d) { return self.x(d[0]); })
             .y(function(d) { return self.y(d[1]); });
 */
-        this.y.domain([3, 100001]);
+        this.y.domain([3, 200]);
         //this.x.domain([0.00001, _.max(self.frequencies)]);
         //this.x.domain([0.00001, _.max(self.frequencies)]);      
-        this.x.domain(d3.extent(frequencies, function(d) { return d; }));
+        this.x.domain(d3.extent(frequencies));
         //this.y.domain(0, 200);
 
 
@@ -77,7 +77,9 @@ class D3Plot {
 
     draw(data){
         var self = this;
-        var zipdata = _.zip(self.frequencies, data)
+        
+        var mav = movingAverage(data, 20);
+        var zipdata = _.zip(self.frequencies, mav)
         var zipdataNonzero = _.filter(zipdata,
                 function(d){ return d[1] > 0; }
         );
@@ -98,6 +100,17 @@ class D3Plot {
     }
 
 }
+
+var movingAverage = function(arr, size) {
+    var win, i, newarr = [];
+    for(i = size-1; i <= arr.length; i++) {
+      win = arr.slice(i - size, i);
+      if (win.length === size) {
+        newarr.push(_.mean(win));
+      }
+    }
+    return newarr;
+  };
 
 //var plot = new D3Plot()
 //plot.draw()
