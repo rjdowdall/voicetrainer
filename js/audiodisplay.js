@@ -1,34 +1,35 @@
-function drawBuffer( width, height, context, data ) {
-    var step = Math.ceil( data.length / width );
-    var amp = height / 2;
-    context.fillStyle = "silver";
-    context.clearRect(0,0,width,height);
-    for(var i=0; i < width; i++){
-        var min = 1.0;
-        var max = -1.0;
-        for (j=0; j<step; j++) {
-            var datum = data[(i*step)+j]; 
-            if (datum < min)
-                min = datum;
-            if (datum > max)
-                max = datum;
-        }
-        context.fillRect(i,(1+min)*amp,1,Math.max(1,(max-min)*amp));
+function drawBuffer(width, height, context, data) {
+  var step = Math.ceil(data.length / width);
+  var amp = height / 2;
+  context.fillStyle = "silver";
+  context.clearRect(0, 0, width, height);
+  for (var i=0; i < width; i++){
+    var min = 1.0;
+    var max = -1.0;
+    for (j=0; j<step; j++) {
+      var datum = data[(i*step)+j];
+      if (datum < min) {
+        min = datum;
+      }
+      if (datum > max) {
+        max = datum;
+      }
     }
+    context.fillRect(i, (1 + min) * amp, 1, Math.max(1, (max - min) * amp));
+  }
 }
 
 var parseTime = d3.timeParse("%d-%b-%y");
 
 class D3Plot {
-    constructor(frequencies){
-        console.log("hello")
+    constructor(frequencies, selector){
         var self = this;
-        var svg = d3.select("svg"),
+        var svg = d3.select(selector),
             margin = {top: 20, right: 20, bottom: 30, left: 50}
 
         this.width = +svg.attr("width") - margin.left - margin.right
         this.height = +svg.attr("height") - margin.top - margin.bottom
-        
+
         this.g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         this.x = d3.scaleLog().base(10)
@@ -59,33 +60,32 @@ class D3Plot {
             .x(function(d) { return self.x(d[0]); })
             .y(function(d) { return self.y(d[1]); });
 
-        
+
         /*this.line = d3.line()
             .x(function(d) { return self.x(d[0]); })
             .y(function(d) { return self.y(d[1]); });
 */
         this.y.domain([3, 100001]);
         //this.x.domain([0.00001, _.max(self.frequencies)]);
-        //this.x.domain([0.00001, _.max(self.frequencies)]);
-       
+        //this.x.domain([0.00001, _.max(self.frequencies)]);      
         this.x.domain(d3.extent(frequencies, function(d) { return d; }));
         //this.y.domain(0, 200);
 
 
     }
-	
+
 
     draw(data){
         var self = this;
         var zipdata = _.zip(self.frequencies, data)
-        var zipdataNonzero = _.filter(zipdata, 
+        var zipdataNonzero = _.filter(zipdata,
                 function(d){ return d[1] > 0; }
-        );        
+        );
 
         //self.x.domain(d3.extent(zipdata, function(d) { return d[0]; }));
         //self.y.domain(d3.extent(zipdata, function(d) { return d[1]; }));
 
-        d3.selectAll("path").remove();
+        self.g.selectAll("path").remove();
         self.g.append("path")
               //.datum(zipdata)
               .attr("fill", "none")
@@ -97,10 +97,7 @@ class D3Plot {
 
     }
 
-} 
+}
 
 //var plot = new D3Plot()
 //plot.draw()
-
-
-

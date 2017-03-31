@@ -1,75 +1,118 @@
-<!doctype html>
-<html>
-<head>
-	<meta name="viewport" content="width=device-width,initial-scale=1">
-	<title>Audio Recorder</title>
-	<style>
-	html { overflow: hidden; }
-	body { 
-		font: 14pt Arial, sans-serif; 
-		background: lightgrey;
-		display: flex;
-		flex-direction: column;
-		height: 100vh;
-		width: 100%;
-		margin: 0 0;
-	}
-	canvas { 
-		display: inline-block; 
-		background: #202020; 
-		width: 95%;
-		height: 45%;
-		box-shadow: 0px 0px 10px blue;
-	}
-	#controls {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-around;
-		height: 20%;
-		width: 100%;
-	}
-	#record { height: 15vh; }
-	#record.recording { 
-		background: red;
-		background: -webkit-radial-gradient(center, ellipse cover, #ff0000 0%,lightgrey 75%,lightgrey 100%,#7db9e8 100%); 
-		background: -moz-radial-gradient(center, ellipse cover, #ff0000 0%,lightgrey 75%,lightgrey 100%,#7db9e8 100%); 
-		background: radial-gradient(center, ellipse cover, #ff0000 0%,lightgrey 75%,lightgrey 100%,#7db9e8 100%); 
-	}
-	#save, #save img { height: 10vh; }
-	#save { opacity: 0.25;}
-	#save[download] { opacity: 1;}
-	#viz {
-		height: 80%;
-		width: 100%;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-around;
-		align-items: center;
-	}
-	@media (orientation: landscape) {
-		body { flex-direction: row;}
-		#controls { flex-direction: column; height: 100%; width: 10%;}
-		#viz { height: 100%; width: 90%;}
-	}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Trans*Code Voice Trainer</title>
 
-	</style>
-</head>
-<body>
-	<div id="viz">
-		<canvas id="analyser" width="1024" height="500"></canvas>
-		<!--<canvas id="wavedisplay" width="1024" height="500"></canvas>-->
-		
-	</div>
-	<svg width="960" height="500"></svg>
-	<!--<div id="controls">
-		<img id="record" src="img/mic128.png" onclick="toggleRecording(this);">
-		<a id="save" href="#"><img src="img/save.svg"></a>
-	</div>-->
-</body>
-	<script src="bower_components/d3/d3.js"></script>
-        <script src="bower_components/lodash/lodash.js"></script>
-	<script src="js/audiodisplay.js"></script>
-	<script src="js/recorder.js"></script>
-	<script src="js/main.js"></script>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+    <style>
+      #viz {
+        position: relative;
+        height: 500px;
+      }
+
+    	svg {
+    	  position: absolute;
+    		width: 100%;
+        margin-bottom: 10px;
+    	}
+
+    	#record.recording {
+    		background: red;
+    	}
+
+    	#save {
+        opacity: 0;
+      }
+
+    	#save[download] {
+    	  opacity: 1;
+      }
+  	</style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12">
+          <div class="jumbotron">
+            <h1>Trans*Code Voice Trainer</h1>
+            <p>Welcome to our voice training application</p>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-9">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Output</h3>
+            </div>
+            <div class="panel-body">
+              <div id="viz">
+              	<svg class="microphone-analyser" width="960" height="500"></svg>
+              	<svg class="file-analyser" width="960" height="500"></svg>
+            	</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-3">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Controls</h3>
+            </div>
+            <div class="panel-body">
+              <form>
+                <div class="form-group">
+                  <input type="file" class="file-input">
+							  </div>
+                <div class="form-group">
+                  <button type="button" class="btn btn-default" name="button" id="record">Toggle recording</button>
+							  </div>
+                <div class="form-group">
+            		  <a id="save" href="#" class="btn btn-default">Save recording</a>
+								</div>
+
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-9">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Instructions</h3>
+            </div>
+            <div class="panel-body">
+              Tell people how to use it
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-3">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">About</h3>
+            </div>
+            <div class="panel-body">
+              This project was worked on by group 1 at the TDOV Hackathon on 31/01/2017
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  	<script src="bower_components/d3/d3.js"></script>
+    <script src="bower_components/lodash/lodash.js"></script>
+  	<script src="js/audiodisplay.js"></script>
+  	<script src="js/recorder.js"></script>
+  	<script src="js/main.js"></script>
+  </body>
 </html>
